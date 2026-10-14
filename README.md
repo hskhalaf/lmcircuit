@@ -1,12 +1,8 @@
-# lmcircuit
+# LMCircuit
 
-Ask language-model judges one at a time, and stop when the answer is worth its cost.
+Language models make it easy to build classifiers by simply prompting a model with the sample to classify. However, their predictions are neither deterministic nor uniformly reliable across samples. To this end, we introduce \emph{circuits} that organize LLM classifiers into an adaptive sequence of queries and decisions.
 
-You have items to classify and several judges (LLMs under a prompt, reward models, classifiers) that answer them at
-different costs. `lmcircuit` learns a belief model of the label and the judges' answers and solves an exact dynamic
-program: for each item, it decides which judge to ask next, or to stop and answer. The same belief model serves
-two objectives (accuracy and balanced accuracy); each circuit's cost frontier is scored on every metric, against
-each judge alone, majority voting and eight published routing and cascade methods, on held-out items.
+Given items to classify and several judges that answer them at different costs. `lmcircuit` learns a belief model of the label and the judges' answers and solves an exact dynamic program: for each item, it decides which judge to ask next, or to stop and answer.
 
 ```python
 import lmcircuit as lc
@@ -27,12 +23,9 @@ The method needs only numpy and torch; a GPU makes the dynamic program much fast
 
 ## Example
 
-[examples/lmcircuit.ipynb](examples/lmcircuit.ipynb): pick a registered dataset and inspect it (its judges, how much
-data, examples), or bring your own questions with ground truth and the Hugging Face models to choose between (each
-under a shared or its own system prompt, sampled as often as you like); then evaluate both objectives, draw the
-figures, and use one circuit item by item.
+[examples/lmcircuit.ipynb](examples/lmcircuit.ipynb): pick a dataset and inspect it (its judges, how much data, examples), or bring your own questions with ground truth and the Hugging Face models to choose between (each under a shared or its own system prompt, sampled as often as you like); then evaluate its accuracy.
 
-## What is where
+## Folder Organization
 
 ```
 lmcircuit/
@@ -58,9 +51,7 @@ docs/method.md     the method, its defaults, and why
 
 ## Datasets
 
-`lc.datasets.REGISTRY` holds the paper's seven datasets. Three come with their judges' recorded answers: Decision
-Index, OLL BBH and AgentJudgeBench. For the other four (PolitiCAUSE, BeaverTails, LMArena, HealthBench), `load` gives
-the items, and each module's `recipe` reruns the paper's judges with `lc.collect` against your own vLLM servers:
+`lc.datasets.REGISTRY` holds seven datasets. Three come with their judges' recorded answers: Decision Index, OLL BBH and AgentJudgeBench. For the other four (PolitiCAUSE, BeaverTails, LMArena, HealthBench), `load` gives the items, and each module's `recipe` reruns the paper's judges with `lc.collect` against your own vLLM servers:
 
 ```python
 lc.datasets.fetch("politicause", "data/politicause")
@@ -73,13 +64,8 @@ Each loader's docstring gives its source, licence, items, judges and costs.
 
 ## Baselines
 
-RouteLLM, Hybrid LLM, Trust or Escalate, FrugalGPT, cascade routing, CARROT, the answer-consistency cascade and
-Adaptive-Consistency: `lc.evaluate(ds, baselines="all")`. Each runs on the circuit's folds, pools and test items, with
-the settings of its paper (`lc.baselines`; each module's docstring lists what we had to substitute). The two
-repeated-call methods sample further calls from the recorded verdict probabilities when a judge has one recorded
-call.
+You can also run other baseline methods like RouteLLM, Hybrid LLM, Trust or Escalate, FrugalGPT, cascade routing, CARROT, the answer-consistency cascade and Adaptive-Consistency: `lc.evaluate(ds, baselines="all")`.
 
 ## License
 
-MIT (`LICENSE`). The vendored FrugalGPT and cascade-routing code under
-`lmcircuit/baselines/_vendor/` keeps its own licences. Each dataset's licence is in its loader's docstring.
+MIT (`LICENSE`). The vendored FrugalGPT and cascade-routing code under `lmcircuit/baselines/_vendor/` keeps its own licences. Each dataset's licence is in its loader's docstring.
