@@ -1,0 +1,33 @@
+[project]
+name = "lmcircuit"
+version = "0.4.0"
+description = "Ask language-model judges one at a time and stop when the answer is worth its cost: a belief model and an exact dynamic program over judge pools"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Hadi Khalaf" }]
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = [
+    "numpy>=1.26",
+    "torch>=2.5",
+]
+
+[project.optional-dependencies]
+datasets = ["pandas>=2.2", "pyarrow>=17", "huggingface-hub>=0.30", "pyyaml>=6"]   # the registered loaders
+llm = ["httpx>=0.27"]                                                              # lc.label, lc.collect
+embed = ["sentence-transformers>=5"]                                               # lc.embed
+plot = ["matplotlib>=3.9"]                                                         # lc.plot
+baselines = ["scipy>=1.11", "scikit-learn>=1.4", "sentencepiece>=0.2", "protobuf>=4",   # lc.baselines (DeBERTa-v3's
+             "transformers>=4.45,<5"]                # tokenizer needs the two before; under transformers 5 its training
+                                                     # diverges at the first step)
+all = ["lmcircuit[datasets,llm,embed,plot,baselines]"]
+
+[dependency-groups]
+dev = ["lmcircuit[all]", "pytest>=8"]  # `uv sync` in this repository
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["lmcircuit"]
